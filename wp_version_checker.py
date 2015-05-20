@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import urllib.request
+import urllib.error
 import re
 import logging
 
@@ -22,12 +23,15 @@ def get_current_version():
 
 
 def get_version_installed_on_domain(domain):
-    with urllib.request.urlopen('http://{}/readme.html'.format(domain)) as fp:
-        match = re.search(r'Version ([0-9]+\.[0-9]+\.[0-9]+)', str(fp.read()))
-        if match:
-            return match.group(1)
-        else:
-            logging.warning('Cannot read WP version of domain {}'.format(domain))
+    try:
+        with urllib.request.urlopen('http://{}/readme.html'.format(domain)) as fp:
+            match = re.search(r'Version ([0-9]+\.[0-9]+\.[0-9]+)', str(fp.read()))
+            if match:
+                return match.group(1)
+            else:
+                logging.warning('Cannot read WP version of domain {}'.format(domain))
+    except (urllib.error.HTTPError, urllib.error.URLError):
+        logging.warning('Cannot read WP version of domain {}'.format(domain))
 
 
 def get_domains_from_file(domains_file):
@@ -48,14 +52,18 @@ def check_domains(domains):
 
         version = get_version_installed_on_domain(domain)
 
+        if not version:
+            print(ORANGE, 'WARN: version not detected'.format(version), END, sep='')
+            continue
+
         if version == cur_version:
             print(GREEN, 'OK', END, sep='')
         else:
-            print(RED, 'ERR: version {} detected'.format(version), END, sep='')
+            print(RED, 'FAIL: version {} detected'.format(version), END, sep='')
             failed_domains.append(domain)
 
     print()
-    print(ORANGE, 'Failed domains: {}'.format(', '.join(failed_domains)), END, sep='')
+    print(ORANGE, 'Not uptodate domains: {}'.format(', '.join(failed_domains)), END, sep='')
 
 
 if __name__ == '__main__':
