@@ -10,8 +10,10 @@ import urllib.request
 import urllib.error
 import re
 import logging
+import concurrent.futures
 
 WP_DOWNLOAD_URL = 'https://wordpress.org/download/'
+MAX_WORKERS = 5
 
 GREEN = '\033[92m'
 RED = '\033[91m'
@@ -84,30 +86,44 @@ def check_domains(domains):
     print('Current stable version is: {}'.format(cur_version))
     print()
 
-    for domain in domains:
-        print('Checking domain {}...'.format(domain), end='')
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=MAX_WORKERS
+    ) as executor:
+        future_to_domain = {
+            executor.submit(get_version_installed_on_domain, domain): domain
+            for domain in domains
+        }
 
-        version = get_version_installed_on_domain(domain)
+        for future in concurrent.futures.as_completed(future_to_domain):
+            domain = future_to_domain[future]
 
-        if not version:
-            print(
-                ORANGE,
-                'WARN: version not detected'.format(version),
-                END,
-                sep=''
-            )
-            continue
+            print('Checking domain {}...'.format(domain), end='')
 
-        if version == cur_version:
-            print(GREEN, 'OK', END, sep='')
-        else:
-            print(
-                RED,
-                'FAIL: version {} detected'.format(version),
-                END,
-                sep=''
-            )
-            failed_domains.append(domain)
+            try:
+                version = future.result()
+            except Exception as exc:
+                print('%r generated an exception: %s' % (domain, exc))
+                continue
+
+            if not version:
+                print(
+                    ORANGE,
+                    'WARN: version not detected'.format(version),
+                    END,
+                    sep=''
+                )
+                continue
+
+            if version == cur_version:
+                print(GREEN, 'OK', END, sep='')
+            else:
+                print(
+                    RED,
+                    'FAIL: version {} detected'.format(version),
+                    END,
+                    sep=''
+                )
+                failed_domains.append(domain)
 
     print()
     print(
