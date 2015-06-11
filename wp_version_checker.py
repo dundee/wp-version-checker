@@ -5,9 +5,10 @@ Script for checking if version of WordPress sites is up-to-date
 Usage: wp_version_checker.py file_with_domains
 """
 
+from __future__ import print_function
+
 import sys
-import urllib.request
-import urllib.error
+import requests
 import re
 import logging
 import concurrent.futures
@@ -25,15 +26,15 @@ def get_current_version():
     """
     Get current stable version of WordPress
     """
-    with urllib.request.urlopen(WP_DOWNLOAD_URL) as opened_file:
-        match = re.search(
-            r'Download&nbsp;WordPress&nbsp;([0-9]+\.[0-9]+\.[0-9]+)',
-            str(opened_file.read())
-        )
-        if match:
-            return match.group(1)
-        else:
-            raise Exception('Cannot read current stable WP version')
+    r = requests.get(WP_DOWNLOAD_URL)
+    match = re.search(
+        r'Download&nbsp;WordPress&nbsp;([0-9]+\.[0-9]+\.[0-9]+)',
+        str(r.text)
+    )
+    if match:
+        return match.group(1)
+    else:
+        raise Exception('Cannot read current stable WP version')
 
 
 def get_version_installed_on_domain(domain):
@@ -43,20 +44,18 @@ def get_version_installed_on_domain(domain):
     :param str domain:
     """
     try:
-        with urllib.request.urlopen(
-            'http://{}/readme.html'.format(domain)
-        ) as opened_file:
-            match = re.search(
-                r'Version ([0-9]+\.[0-9]+\.[0-9]+)',
-                str(opened_file.read())
+        r = requests.get('http://{}/readme.html'.format(domain))
+        match = re.search(
+            r'Version ([0-9]+\.[0-9]+\.[0-9]+)',
+            str(r.text)
+        )
+        if match:
+            return match.group(1)
+        else:
+            logging.warning(
+                'Cannot read WP version of domain {}'.format(domain)
             )
-            if match:
-                return match.group(1)
-            else:
-                logging.warning(
-                    'Cannot read WP version of domain {}'.format(domain)
-                )
-    except (urllib.error.HTTPError, urllib.error.URLError):
+    except requests.exceptions.HTTPError:
         logging.warning(
             'Cannot read WP version of domain {}'.format(domain)
         )
