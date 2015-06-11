@@ -3,11 +3,9 @@ from setuptools import setup, find_packages
 import sys
 
 try:
-    from pypandoc import convert
-    read_md = lambda f: convert(f, 'rst')
-except ImportError:
-    print("warning: pypandoc module not found, could not convert Markdown to RST")
-    read_md = lambda f: open(f, 'r').read()
+    long_description = open("README.rst").read()
+except IOError:
+    long_description = ""
 
 PY2 = sys.version_info[0] == 2
 
@@ -18,7 +16,7 @@ if PY2:
 
 setup(
     name="wp-version-checker",
-    version="0.2.0",
+    version="0.2.1",
     packages=find_packages(),
     scripts=['wp_version_checker.py'],
     author="Dundee",
@@ -27,7 +25,7 @@ setup(
     license="GPL",
     keywords="wordpress",
     url="https://github.com/Dundee/wp-version-checker",
-    long_description=read_md('README.md'),
+    long_description=long_description,
     install_requires=requires,
     classifiers=[
         "Programming Language :: Python",

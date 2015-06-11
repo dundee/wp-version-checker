@@ -1,12 +1,17 @@
-# Wordpress version checker
+Wordpress version checker
+=========================
 
 Script for checking version of Wordpress sites
 
 Usage:
 
+::
+
     wp_version_checker.py file_with_domains
 
 Output:
+
+::
 
     Current stable version is: 4.2.2
 
@@ -15,3 +20,5 @@ Output:
     Checking domain some.org...WARN: version not detected
 
     Not uptodate domains: xxx.com
+
+
