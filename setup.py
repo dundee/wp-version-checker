@@ -18,7 +18,7 @@ if PY2:
 
 setup(
     name="wp-version-checker",
-    version="0.1.3",
+    version="0.2.0",
     packages=find_packages(),
     scripts=['wp_version_checker.py'],
     author="Dundee",
