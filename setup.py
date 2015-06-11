@@ -16,9 +16,10 @@ if PY2:
 
 setup(
     name="wp-version-checker",
-    version="0.2.1",
+    version="0.2.3",
     packages=find_packages(),
     scripts=['wp_version_checker.py'],
+    py_modules=['wp_version_checker'],
     author="Dundee",
     author_email="daniel@milde.cz",
     description="Wordpress version checker",

@@ -2,7 +2,7 @@
 .PHONY: clean
 
 upload:
-	python setup.py sdist upload
+	python setup.py sdist bdist_wheel upload
 
 install:
 	python setup.py install
