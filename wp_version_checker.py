@@ -29,7 +29,7 @@ def get_current_version():
     """
     r = requests.get(WP_DOWNLOAD_URL)
     match = re.search(
-        r'Download&nbsp;WordPress&nbsp;([0-9]+\.[0-9]+\.[0-9]+)',
+        r'Download&nbsp;WordPress&nbsp;([0-9]+\.[0-9]+\.?[0-9]+)',
         str(r.text)
     )
     if match:
@@ -47,7 +47,7 @@ def get_version_installed_on_domain(domain):
     try:
         r = requests.get('http://{}/readme.html'.format(domain))
         match = re.search(
-            r'Version ([0-9]+\.[0-9]+\.[0-9]+)',
+            r'Version ([0-9]+\.[0-9]+\.?[0-9]*)',
             str(r.text)
         )
         if match:
