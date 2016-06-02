@@ -7,7 +7,7 @@ Usage:
 
 ::
 
-    wp_version_checker.py file_with_domains
+    wp-version-checker file_with_domains
 
 Output:
 

@@ -16,9 +16,13 @@ if PY2:
 
 setup(
     name="wp-version-checker",
-    version="0.2.4",
+    version="0.3.0",
     packages=find_packages(),
-    scripts=['wp_version_checker.py'],
+    entry_points={
+        'console_scripts': [
+            'wp-version-checker=wp_version_checker:main',
+        ]
+    },
     py_modules=['wp_version_checker'],
     author="Dundee",
     author_email="daniel@milde.cz",

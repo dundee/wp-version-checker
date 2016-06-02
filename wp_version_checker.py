@@ -134,9 +134,13 @@ def check_domains(domains):
     )
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) < 2:
         print('Usage: {} file_with_domains'.format(sys.argv[0]))
         sys.exit(1)
 
     check_domains(get_domains_from_file(sys.argv[1]))
+
+
+if __name__ == '__main__':
+    main()
