@@ -16,7 +16,7 @@ if PY2:
 
 setup(
     name="wp-version-checker",
-    version="0.3.0",
+    version="0.4.0",
     packages=find_packages(),
     entry_points={
         'console_scripts': [

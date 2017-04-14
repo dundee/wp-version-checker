@@ -21,6 +21,7 @@ GREEN = '\033[92m'
 RED = '\033[91m'
 ORANGE = '\033[93m'
 END = '\033[0m'
+NEWLINE = '\n'
 
 
 def get_current_version():
@@ -75,16 +76,17 @@ def get_domains_from_file(domains_file):
 
 
 def check_domains(domains):
+    # type: (list[str]) -> list[str]
     """
     Check given domains
 
     :param list domains:
+    :return: list of failed domains
     """
     cur_version = get_current_version()
     failed_domains = []
 
-    print('Current stable version is: {}'.format(cur_version))
-    print()
+    logging.info('Current stable version is: {}\n'.format(cur_version))
 
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=MAX_WORKERS
@@ -97,47 +99,50 @@ def check_domains(domains):
         for future in concurrent.futures.as_completed(future_to_domain):
             domain = future_to_domain[future]
 
-            print('Checking domain {}...'.format(domain), end='')
+            logging.info('Checking domain {}...'.format(domain))
 
             try:
                 version = future.result()
             except Exception as exc:
-                print('%r generated an exception: %s' % (domain, exc))
+                logging.warn('%r generated an exception: %s', domain, exc)
                 continue
 
             if not version:
-                print(
-                    ORANGE,
-                    'WARN: version not detected'.format(version),
-                    END,
-                    sep=''
+                logging.warn(
+                    ORANGE +
+                    'WARN: version not detected'.format(version) +
+                    END
                 )
                 continue
 
             if version == cur_version:
-                print(GREEN, 'OK', END, sep='')
+                logging.info(GREEN + 'OK' + END)
             else:
-                print(
-                    RED,
-                    'FAIL: version {} detected'.format(version),
+                logging.warn(
+                    RED +
+                    'FAIL: version {} detected'.format(version) +
                     END,
-                    sep=''
                 )
                 failed_domains.append(domain)
 
-    print()
-    print(
-        ORANGE,
-        'Not uptodate domains: {}'.format(', '.join(failed_domains)),
-        END,
-        sep=''
+    logging.info(
+        NEWLINE +
+        ORANGE +
+        'Not uptodate domains: {}'.format(', '.join(failed_domains)) +
+        END
     )
+    return failed_domains
 
 
 def main():
     if len(sys.argv) < 2:
         print('Usage: {} file_with_domains'.format(sys.argv[0]))
         sys.exit(1)
+
+    logging.root.setLevel(logging.INFO)
+    logging.root.handlers = []
+    logging.root.addHandler(logging.StreamHandler())
+    logging.root.handlers[0].setFormatter(logging.Formatter())
 
     check_domains(get_domains_from_file(sys.argv[1]))
 
