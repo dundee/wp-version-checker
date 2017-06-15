@@ -30,7 +30,7 @@ def get_current_version():
     """
     r = requests.get(WP_DOWNLOAD_URL)
     match = re.search(
-        r'Download&nbsp;WordPress&nbsp;([0-9]+\.[0-9]+\.?[0-9]+)',
+        r'Download&nbsp;WordPress&nbsp;([0-9]+\.[0-9]+\.?[0-9]*)',
         str(r.text)
     )
     if match:
